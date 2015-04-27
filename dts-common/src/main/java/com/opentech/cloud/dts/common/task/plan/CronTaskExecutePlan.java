@@ -70,7 +70,7 @@ public class CronTaskExecutePlan extends AbstractTaskExecutePlan {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("cron,");
+		StringBuilder sb = new StringBuilder("cron: ");
 		sb.append(cron);
 		sb.append(",");
 		sb.append(priority);

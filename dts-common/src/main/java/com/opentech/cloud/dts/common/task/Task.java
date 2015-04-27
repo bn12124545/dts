@@ -1,9 +1,17 @@
 package com.opentech.cloud.dts.common.task;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.opentech.cloud.dts.common.task.plan.TaskExecutePlan;
+import com.opentech.cloud.dts.common.task.plan.TaskExecutePlanFactory;
+import com.opentech.cloud.dts.common.task.plan.TaskPriority;
 
 /**
  * 
@@ -22,7 +30,7 @@ public class Task implements Serializable {
 	/**
 	 * task id
 	 */
-	private Long id;
+	private String id;
 	
 	/**
 	 * task name
@@ -32,7 +40,7 @@ public class Task implements Serializable {
 	/**
 	 * 任务所属分组
 	 */
-	private String group;
+	private String group = DEFAULT_GROUP;
 	
 	/**
 	 * 任务执行计划
@@ -42,19 +50,20 @@ public class Task implements Serializable {
 	/**
 	 * 任务状态
 	 */
-	private TaskStatus status;
+	private TaskStatus status = TaskStatus.WAITIN_SCHEDULE;
 
 	/**
 	 * 任务上下文
 	 */
 	private Map<String, Object> context;
-
-	public Long getId() {
-		return id;
+	
+	public Task() {
+		this.id = UUID.randomUUID().toString();
+		this.context = new HashMap<String, Object>();
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public String getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -95,5 +104,48 @@ public class Task implements Serializable {
 
 	public void setContext(Map<String, Object> context) {
 		this.context = context;
+	}
+	
+	/**
+	 * 生成key
+	 */
+	public String generateKey() {
+		return String.format("%s@%s$%s", this.getName(), this.getGroup(), this.getId());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.id.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Task)) {
+			return false;
+		}
+		return StringUtils.equals(this.id, ((Task)obj).id);
+	}
+	
+	/**
+	 * 
+	 * @param str
+	 * @return
+	 */
+	public static Task fromJSON(String str) {
+		Task t = new Task();
+		JSONObject js = JSON.parseObject(str);
+		
+		t.id = js.getString("id");
+		t.name = js.getString("name");
+		t.group = js.getString("group");
+		JSONObject jp = js.getJSONObject("plan");
+		if(null != jp.getString("cron")) {
+			t.plan = TaskExecutePlanFactory.cron(TaskPriority.valueOf(jp.getString("priority")), jp.getString("cron"));
+		} else if(null != jp.getDate("startTime")) {
+			t.plan = TaskExecutePlanFactory.simple(TaskPriority.valueOf(jp.getString("priority")), jp.getDate("startTime"), jp.getIntValue("repeatCount"), jp.getIntValue("repeatInterval"));
+		}
+		t.status = TaskStatus.valueOf(js.getString("status"));
+		t.context = js.getObject("context", HashMap.class);
+		return t;
 	}
 }

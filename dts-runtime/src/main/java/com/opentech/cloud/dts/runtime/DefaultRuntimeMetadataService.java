@@ -54,7 +54,7 @@ public class DefaultRuntimeMetadataService implements RuntimeMetadataService {
 		((DefaultSchedulerMetadataService)this.sms).initialize();
 		this.wms = new DefaultWorkerMetadataService(zkc);
 		((DefaultWorkerMetadataService)this.wms).initialize();
-		this.tms = new DefaultTaskMetadataService(zkc);
+		this.tms = new DefaultTaskMetadataService(zkc, this.sms);
 		((DefaultTaskMetadataService)this.tms).initialize();
 	}
 	

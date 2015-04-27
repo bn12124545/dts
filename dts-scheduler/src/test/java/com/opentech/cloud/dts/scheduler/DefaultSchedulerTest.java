@@ -28,9 +28,8 @@ public class DefaultSchedulerTest {
 		ds.initialize();
 		ds.start();
 		
-		Thread.sleep(120 * 1000);
+		Thread.sleep(360 * 1000);
 		
 		ds.stop();
 	}
-
 }

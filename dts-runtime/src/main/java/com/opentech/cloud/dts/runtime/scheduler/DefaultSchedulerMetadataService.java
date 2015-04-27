@@ -78,7 +78,7 @@ public class DefaultSchedulerMetadataService implements SchedulerMetadataService
 		List<String> chidren = zkc.getChildren(SCHEDULER_ZOOKEEPER_NODE);
 		Set<Scheduler> ss = new HashSet<Scheduler>(chidren.size());
 		for(String child : chidren) {
-			ss.add(JSON.parseObject(new String(zkc.getNode(child)), Scheduler.class));
+			ss.add(JSON.parseObject(new String(zkc.getNode(SCHEDULER_ZOOKEEPER_NODE + "/" + child)), Scheduler.class));
 		}
 		return ss;
 	}

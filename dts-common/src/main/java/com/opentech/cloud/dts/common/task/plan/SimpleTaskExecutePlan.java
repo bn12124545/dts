@@ -53,9 +53,9 @@ public class SimpleTaskExecutePlan extends AbstractTaskExecutePlan {
 		super(priority);
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(startTime);
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + 1);
+		//calendar.set(Calendar.MILLISECOND, 0);
+		//calendar.set(Calendar.SECOND, 0);
+		//calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + 1);
 		this.startTime = calendar.getTime();
 		this.repeatCount = repeatCount;
 		this.repeatInterval = repeatInterval;
@@ -130,7 +130,7 @@ public class SimpleTaskExecutePlan extends AbstractTaskExecutePlan {
 	
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("simple,");
+		StringBuilder sb = new StringBuilder("simple: ");
 		sb.append(startTime);
 		sb.append(",");
 		sb.append(repeatCount);

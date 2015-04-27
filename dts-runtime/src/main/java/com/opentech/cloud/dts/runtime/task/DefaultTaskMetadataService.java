@@ -3,12 +3,15 @@ package com.opentech.cloud.dts.runtime.task;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.opentech.cloud.dts.common.Environment;
 import com.opentech.cloud.dts.common.scheduler.Scheduler;
 import com.opentech.cloud.dts.common.task.Task;
 import com.opentech.cloud.dts.common.task.TaskStatus;
+import com.opentech.cloud.dts.runtime.scheduler.SchedulerMetadataService;
+import com.opentech.cloud.dts.runtime.task.TaskMetadataService.Listener;
 import com.opentech.cloud.dts.runtime.zookeeper.AbstractListener;
 import com.opentech.cloud.dts.runtime.zookeeper.ZookeeperClient;
 
@@ -28,10 +31,16 @@ public class DefaultTaskMetadataService implements TaskMetadataService {
 	
 	/**
 	 * 
+	 */
+	private SchedulerMetadataService sms;
+	
+	/**
+	 * 
 	 * @param zkc
 	 */
-	public DefaultTaskMetadataService(ZookeeperClient zkc) {
+	public DefaultTaskMetadataService(ZookeeperClient zkc, SchedulerMetadataService sms) {
 		this.zkc = zkc;
+		this.sms = sms;
 	}
 	
 	/**
@@ -56,8 +65,13 @@ public class DefaultTaskMetadataService implements TaskMetadataService {
 	}
 	
 	@Override
-	public void subscribeSchedulerOnGroupTask(String g, Scheduler s, final Listener l) {
-		this.zkc.registerChildrenListener(new AbstractListener(String.format("%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, g, s.generateKey(), TaskStatus.WAITIN_SCHEDULE)) {
+	public void subscribeTaskOnGroupScheduler(String g, Scheduler s, TaskStatus ts, final Listener l) {
+		this.subscribeTaskOnGroupScheduler(g, s.generateKey(), ts, l);
+	}
+	
+	@Override
+	public void subscribeTaskOnGroupScheduler(String g, String s, TaskStatus ts, final Listener l) {
+		this.zkc.registerChildrenListener(new AbstractListener(String.format("%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, g, s, ts)) {
 
 			@Override
 			public void onChildrenChanged() {
@@ -69,8 +83,8 @@ public class DefaultTaskMetadataService implements TaskMetadataService {
 	}
 	
 	@Override
-	public void submit(Task task) {
-		zkc.createPersistentNodeIfNotExists(getTaskNodePath(task), JSON.toJSONString(task).getBytes());
+	public void schedule(Task t) {
+		zkc.createPersistentNodeIfNotExists(getTaskNodePath(t), JSON.toJSONString(t).getBytes());
 	}
 
 	@Override
@@ -81,8 +95,8 @@ public class DefaultTaskMetadataService implements TaskMetadataService {
 	}
 
 	@Override
-	public void delete(Task task) {
-		zkc.deleteNode(getTaskNodePath(task));
+	public boolean delete(Task task) {
+		return zkc.deleteNode(getTaskNodePath(task));
 	}
 	
 	@Override
@@ -91,12 +105,22 @@ public class DefaultTaskMetadataService implements TaskMetadataService {
 	}
 	
 	@Override
+	public List<String> getAllSchedulers(String group) {
+		return this.zkc.getChildren(this.getGroupNodePath(group));
+	}
+	
+	@Override
 	public List<Task> getTasks(String group, Scheduler scheduler, TaskStatus status) {
-		List<String> children = this.zkc.getChildren(String.format("%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, group, scheduler.generateKey(), status.name()));
+		return this.getTasks(group, scheduler.generateKey(), status);
+	}
+	
+	@Override
+	public List<Task> getTasks(String group, String scheduler, TaskStatus status) {
+		List<String> children = this.zkc.getChildren(String.format("%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, group, scheduler, status.name()));
 		List<Task> tlist = new ArrayList<Task>();
 		try {
 			for(String s : children) {
-				tlist.add(JSON.parseObject(new String(this.zkc.getNode(String.format("%s/%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, group, scheduler.generateKey(), status.name(), s)), Environment.CHARSET), Task.class));
+				tlist.add(Task.fromJSON(new String(this.zkc.getNode(String.format("%s/%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, group, scheduler, status.name(), s)), Environment.CHARSET)));
 			}
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
@@ -122,13 +146,29 @@ public class DefaultTaskMetadataService implements TaskMetadataService {
 			this.zkc.createPersistentNodeIfNotExists(path + "/" + ts.name());
 		}
 	}
+	
+	/**
+	 * 
+	 * @param group
+	 * @return
+	 */
+	private String getGroupNodePath(String group) {
+		return String.format("%s/%s", ROOT_TASK_ZOOKEEPER_NODE, group);
+	}
 
 	/**
 	 * 
-	 * @param task
+	 * @param t
 	 * @return
 	 */
-	private String getTaskNodePath(Task task) {
-		return String.format("%s/%s/%s/%s@%s$%d", ROOT_TASK_ZOOKEEPER_NODE, task.getGroup(), task.getStatus(), task.getName(), task.getGroup(), task.getId());
+	private String getTaskNodePath(Task t) {
+		Set<Scheduler> ss = this.sms.getAllScheduler();
+		if(ss.isEmpty()) {
+			//throw new TaskException(ErrorCode.NONE_SCHEDULER_AVAILABLE, "no scheduler available");
+			throw new RuntimeException("no scheduler available");
+		}
+		Scheduler[] sa = ss.toArray(new Scheduler[ss.size()]);
+		Scheduler s = sa[t.hashCode() % ss.size()];
+		return String.format("%s/%s/%s/%s/%s", ROOT_TASK_ZOOKEEPER_NODE, t.getGroup(), s.generateKey(), t.getStatus().name(), t.generateKey());
 	}
 }

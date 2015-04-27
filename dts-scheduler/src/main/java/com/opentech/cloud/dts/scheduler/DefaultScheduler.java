@@ -17,8 +17,8 @@ import com.opentech.cloud.dts.runtime.RuntimeMetadataService;
 import com.opentech.cloud.dts.runtime.scheduler.SchedulerMetadataService;
 import com.opentech.cloud.dts.runtime.task.TaskMetadataService;
 import com.opentech.cloud.dts.runtime.task.TaskMetadataService.Event;
-import com.opentech.cloud.dts.scheduler.plan.DefaultPlanExecutor;
 import com.opentech.cloud.dts.scheduler.plan.PlanExecutor;
+import com.opentech.cloud.dts.scheduler.plan.quartz.DefaultPlanExecutor;
 import com.opentech.cloud.dts.utils.JVMUtils;
 import com.opentech.cloud.dts.utils.NetworkUtils;
 
@@ -99,12 +99,16 @@ public class DefaultScheduler implements Scheduler {
 
 	@Override
 	public void start() {
-		
+		if(null != this.pe) {
+			((DefaultPlanExecutor)this.pe).start();
+		}
 	}
 
 	@Override
 	public void stop() {
-		
+		if(null != this.pe) {
+			((DefaultPlanExecutor)this.pe).stop();
+		}
 	}
 	
 	/**
@@ -239,7 +243,7 @@ public class DefaultScheduler implements Scheduler {
 	 * @param g
 	 */
 	private void listenOneGroupTask(final String g) {
-		this.rms.getTaskMetadataService().subscribeSchedulerOnGroupTask(g, this.self, new TaskMetadataService.Listener() {
+		this.rms.getTaskMetadataService().subscribeTaskOnGroupScheduler(g, this.self, TaskStatus.WAITIN_SCHEDULE, new TaskMetadataService.Listener() {
 
 			@Override
 			public void fire(Event event) {

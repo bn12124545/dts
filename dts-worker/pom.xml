@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>dts-runtime</artifactId>
+            <artifactId>dts-api</artifactId>
         </dependency>
         
         <dependency>

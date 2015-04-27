@@ -83,6 +83,6 @@ public class DefaultWorkerMetadataService implements WorkerMetadataService {
 	 * @return
 	 */
 	private String getWorkerNodePath(Worker worker) {
-		return String.format("%s/%s/worker@%s$%s", ROOT_WORKER_ZOOKEEPER_NODE, worker.getGroup(), worker.getIp(), worker.getPid());
+		return String.format("%s/%s/%s", ROOT_WORKER_ZOOKEEPER_NODE, worker.getGroup(), worker.generateKey());
 	}
 }

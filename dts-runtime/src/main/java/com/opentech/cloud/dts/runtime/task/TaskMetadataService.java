@@ -23,15 +23,25 @@ public interface TaskMetadataService {
 	 * 
 	 * @param g
 	 * @param s
+	 * @param ts
 	 * @param l
 	 */
-	void subscribeSchedulerOnGroupTask(String g, Scheduler s, Listener l);
+	void subscribeTaskOnGroupScheduler(String g, Scheduler s, TaskStatus ts, Listener l);
 	
 	/**
-	 * 提交任务
-	 * @param task
+	 * 
+	 * @param g
+	 * @param s
+	 * @param ts
+	 * @param l
 	 */
-	void submit(Task task);
+	void subscribeTaskOnGroupScheduler(String g, String s, TaskStatus ts, Listener l);
+	
+	/**
+	 * 
+	 * @param t
+	 */
+	void schedule(Task t);
 	
 	/**
 	 * 任务状态转换
@@ -44,13 +54,20 @@ public interface TaskMetadataService {
 	 * 删除任务
 	 * @param task
 	 */
-	void delete(Task task);
+	boolean delete(Task task);
 	
 	/**
 	 * 获取所有的分组
 	 * @return
 	 */
 	List<String> getAllGroup();
+	
+	/**
+	 * 获取某一group下的所有scheduler
+	 * @param group
+	 * @return
+	 */
+	List<String> getAllSchedulers(String group);
 	
 	/**
 	 * 
@@ -60,6 +77,15 @@ public interface TaskMetadataService {
 	 * @return
 	 */
 	List<Task> getTasks(String group, Scheduler scheduler, TaskStatus status);
+	
+	/**
+	 * 
+	 * @param group
+	 * @param scheduler
+	 * @param status
+	 * @return
+	 */
+	List<Task> getTasks(String group, String scheduler, TaskStatus status);
 	
 	/**
 	 * 

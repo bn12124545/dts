@@ -57,6 +57,7 @@
         <jetty.version>9.2.9.v20150224</jetty.version>
         <okhttp.version>2.2.0</okhttp.version>
         <zookeeper.version>3.4.6</zookeeper.version>
+        <quartz.version>2.2.1</quartz.version>
         <servlet-api.version>3.0.1</servlet-api.version>
         <downloadSources>true</downloadSources>
     </properties>
@@ -295,6 +296,18 @@
 				<groupId>org.apache.zookeeper</groupId>
 				<artifactId>zookeeper</artifactId>
 				<version>${zookeeper.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.quartz-scheduler</groupId>
+				<artifactId>quartz</artifactId>
+				<version>${quartz.version}</version>
 			</dependency>
             
         </dependencies>
