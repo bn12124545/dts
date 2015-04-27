@@ -20,7 +20,7 @@ import com.opentech.cloud.dts.common.task.plan.TaskPriority;
  */
 public class Task implements Serializable {
 	
-	public static final String DEFAULT_GROUP = "defalut";
+	public static final String DEFAULT_GROUP = "default";
 	
 	/**
 	 * 
