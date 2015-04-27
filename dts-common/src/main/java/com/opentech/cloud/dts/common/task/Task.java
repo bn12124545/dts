@@ -12,6 +12,8 @@ import com.opentech.cloud.dts.common.task.plan.TaskExecutePlan;
  */
 public class Task implements Serializable {
 	
+	public static final String DEFAULT_GROUP = "defalut";
+	
 	/**
 	 * 
 	 */

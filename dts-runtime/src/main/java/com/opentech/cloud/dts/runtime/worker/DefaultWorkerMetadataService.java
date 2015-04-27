@@ -53,14 +53,14 @@ public class DefaultWorkerMetadataService implements WorkerMetadataService {
 
 	@Override
 	public String[] getAllWorkGroup() {
-		List<String> chidren = zkc.getChidren(ROOT_WORKER_ZOOKEEPER_NODE);
+		List<String> chidren = zkc.getChildren(ROOT_WORKER_ZOOKEEPER_NODE);
 		return chidren.toArray(new String[chidren.size()]);
 	}
 
 	@Override
 	public Worker[] getWorker(String group) {
 		int i = 0;
-		List<String> chidren = zkc.getChidren(String.format("%s/%s", ROOT_WORKER_ZOOKEEPER_NODE, group));
+		List<String> chidren = zkc.getChildren(String.format("%s/%s", ROOT_WORKER_ZOOKEEPER_NODE, group));
 		Worker[] ws = new Worker[chidren.size()];
 		for(String child : chidren) {
 			ws[i] = JSON.parseObject(new String(zkc.getNode(child)), Worker.class);

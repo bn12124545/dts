@@ -1,5 +1,7 @@
 package com.opentech.cloud.dts.runtime.scheduler;
 
+import java.util.Set;
+
 import com.opentech.cloud.dts.common.scheduler.Scheduler;
 
 /**
@@ -19,7 +21,7 @@ public interface SchedulerMetadataService {
 	 * scheduler加入
 	 * @param worker
 	 */
-	void join(Scheduler scheduler);
+	long join(Scheduler scheduler);
 	
 	/**
 	 * scheduler离开
@@ -31,8 +33,14 @@ public interface SchedulerMetadataService {
 	 * 获取所有的scheduler
 	 * @return
 	 */
-	Scheduler[] getAllScheduler();
+	Set<Scheduler> getAllScheduler();
 	
+	/**
+	 * 
+	 * @param sequence
+	 * @return
+	 */
+	boolean voteMaster(long sequence);
 	
 	//=================================================================================
 	//
@@ -43,7 +51,6 @@ public interface SchedulerMetadataService {
 	 *
 	 */
 	class Event {
-		
 	}
 	
 	interface Listener {

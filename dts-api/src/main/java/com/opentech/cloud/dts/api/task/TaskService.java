@@ -1,5 +1,7 @@
 package com.opentech.cloud.dts.api.task;
 
+import java.util.List;
+
 import com.opentech.cloud.dts.common.task.Task;
 import com.opentech.cloud.dts.common.task.TaskException;
 
@@ -16,6 +18,13 @@ public interface TaskService {
 	 * @throws TaskException
 	 */
 	void schedule(Task task) throws TaskException;
+	
+	/**
+	 * 批量调度任务
+	 * @param tlist
+	 * @throws TaskException
+	 */
+	void schedule(List<Task> tlist) throws TaskException;
 	
 	/**
 	 * 暂停任务

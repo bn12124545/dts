@@ -1,8 +1,6 @@
 package com.opentech.cloud.dts.runtime;
 
-import com.opentech.cloud.dts.runtime.scheduler.DefaultSchedulerMasterMetadataService;
 import com.opentech.cloud.dts.runtime.scheduler.DefaultSchedulerMetadataService;
-import com.opentech.cloud.dts.runtime.scheduler.SchedulerMasterMetadataService;
 import com.opentech.cloud.dts.runtime.scheduler.SchedulerMetadataService;
 import com.opentech.cloud.dts.runtime.task.DefaultTaskMetadataService;
 import com.opentech.cloud.dts.runtime.task.TaskMetadataService;
@@ -32,11 +30,6 @@ public class DefaultRuntimeMetadataService implements RuntimeMetadataService {
 	/**
 	 * 
 	 */
-	private SchedulerMasterMetadataService smms;
-	
-	/**
-	 * 
-	 */
 	private WorkerMetadataService wms;
 	
 	/**
@@ -59,8 +52,6 @@ public class DefaultRuntimeMetadataService implements RuntimeMetadataService {
 		this.zkc.initialize();
 		this.sms = new DefaultSchedulerMetadataService(zkc);
 		((DefaultSchedulerMetadataService)this.sms).initialize();
-		this.smms = new DefaultSchedulerMasterMetadataService(zkc);
-		((DefaultSchedulerMasterMetadataService)this.smms).initialize();
 		this.wms = new DefaultWorkerMetadataService(zkc);
 		((DefaultWorkerMetadataService)this.wms).initialize();
 		this.tms = new DefaultTaskMetadataService(zkc);
@@ -70,11 +61,6 @@ public class DefaultRuntimeMetadataService implements RuntimeMetadataService {
 	@Override
 	public SchedulerMetadataService getSchedulerMetadataService() {
 		return sms;
-	}
-	
-	@Override
-	public SchedulerMasterMetadataService getSchedulerMasterMetadataService() {
-		return smms;
 	}
 	
 	@Override

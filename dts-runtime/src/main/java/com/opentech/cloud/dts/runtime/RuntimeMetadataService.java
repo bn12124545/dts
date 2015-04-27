@@ -1,6 +1,5 @@
 package com.opentech.cloud.dts.runtime;
 
-import com.opentech.cloud.dts.runtime.scheduler.SchedulerMasterMetadataService;
 import com.opentech.cloud.dts.runtime.scheduler.SchedulerMetadataService;
 import com.opentech.cloud.dts.runtime.task.TaskMetadataService;
 import com.opentech.cloud.dts.runtime.worker.WorkerMetadataService;
@@ -18,12 +17,6 @@ public interface RuntimeMetadataService {
 	 * @return
 	 */
 	SchedulerMetadataService getSchedulerMetadataService();
-	
-	/**
-	 * 
-	 * @return
-	 */
-	SchedulerMasterMetadataService getSchedulerMasterMetadataService();
 	
 	/**
 	 * 

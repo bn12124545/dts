@@ -1,5 +1,7 @@
 package com.opentech.cloud.dts.common.scheduler;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Scheduler调度
  * @author sihai
@@ -44,5 +46,25 @@ public class Scheduler {
 
 	public void setMaster(boolean isMaster) {
 		this.isMaster = isMaster;
+	}
+
+	@Override
+	public int hashCode() {
+		return (this.ip + "$" + this.pid).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if(!(obj instanceof Scheduler)) {
+			return false;
+		}
+		return StringUtils.equals(((Scheduler)obj).ip, this.ip) && StringUtils.equals(((Scheduler)obj).pid, this.pid);
+	}
+	
+	/**
+	 * 生成key
+	 */
+	public String generateKey() {
+		return String.format("scheduler@%s$%s", this.getIp(), this.getPid());
 	}
 }

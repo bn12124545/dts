@@ -17,7 +17,7 @@ public class DefaultSchedulerTest {
 	
 	@Before
 	public void setup() {
-		this.rms = new DefaultRuntimeMetadataService("127.0.0.1:2121");
+		this.rms = new DefaultRuntimeMetadataService("127.0.0.1:2181");
 		((DefaultRuntimeMetadataService)this.rms).initialize();
 	}
 	

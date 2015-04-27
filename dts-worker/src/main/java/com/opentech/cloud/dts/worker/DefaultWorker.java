@@ -68,7 +68,7 @@ public class DefaultWorker implements Worker {
 	 * 监听任务
 	 */
 	private void listenTask() {
-		this.rms.getTaskMetadataService().subscribe(new TaskMetadataService.Listener() {
+		this.rms.getTaskMetadataService().subscribeGroup(new TaskMetadataService.Listener() {
 			
 			@Override
 			public void fire(Event event) {

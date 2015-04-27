@@ -34,6 +34,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>dts-runtime</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dts-api</artifactId>
+        </dependency>
         
         <dependency>
             <groupId>commons-logging</groupId>

@@ -1,6 +1,8 @@
 package com.opentech.cloud.dts.runtime.scheduler;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.opentech.cloud.dts.common.scheduler.Scheduler;
@@ -36,13 +38,34 @@ public class DefaultSchedulerMetadataService implements SchedulerMetadataService
 	}
 	
 	@Override
-	public void subscribe(Listener l) {
+	public void subscribe(final Listener l) {
 		// TODO
+		zkc.registerChildrenListener(new com.opentech.cloud.dts.runtime.zookeeper.AbstractListener(SCHEDULER_ZOOKEEPER_NODE) {
+
+			@Override
+			public void onCreated() {
+				// TODO Auto-generated method stub
+				super.onCreated();
+			}
+
+			@Override
+			public void onDeleted() {
+				// TODO Auto-generated method stub
+				super.onDeleted();
+			}
+
+			@Override
+			public void onChildrenChanged() {
+				// TODO Auto-generated method stub
+				super.onChildrenChanged();
+				l.fire(new Event());
+			}
+		});
 	}
 
 	@Override
-	public void join(Scheduler scheduler) {
-		zkc.createEphemeralNode(getSchedulerNodePath(scheduler), JSON.toJSONString(scheduler).getBytes());
+	public long join(Scheduler scheduler) {
+		return this.getSequence(zkc.createEphemeralSequenceNode(getSchedulerNodePath(scheduler), JSON.toJSONString(scheduler).getBytes()));
 	}
 
 	@Override
@@ -51,14 +74,37 @@ public class DefaultSchedulerMetadataService implements SchedulerMetadataService
 	}
 
 	@Override
-	public Scheduler[] getAllScheduler() {
-		int i = 0;
-		List<String> chidren = zkc.getChidren(SCHEDULER_ZOOKEEPER_NODE);
-		Scheduler[] ss = new Scheduler[chidren.size()];
+	public Set<Scheduler> getAllScheduler() {
+		List<String> chidren = zkc.getChildren(SCHEDULER_ZOOKEEPER_NODE);
+		Set<Scheduler> ss = new HashSet<Scheduler>(chidren.size());
 		for(String child : chidren) {
-			ss[i] = JSON.parseObject(new String(zkc.getNode(child)), Scheduler.class);
+			ss.add(JSON.parseObject(new String(zkc.getNode(child)), Scheduler.class));
 		}
 		return ss;
+	}
+	
+	@Override
+	public boolean voteMaster(long sequence) {
+		
+		List<String> children = this.zkc.getChildren(SCHEDULER_ZOOKEEPER_NODE);
+		
+		for(String child : children) {
+			if(sequence > getSequence(child)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @param path
+	 * @return
+	 */
+	private long getSequence(String path) {
+		String s = path.substring(path.indexOf(ZookeeperClient.SEQUENCE_SEPARATOR) + ZookeeperClient.SEQUENCE_SEPARATOR.length());
+		return Long.valueOf(s);
 	}
 
 	/**
@@ -67,6 +113,6 @@ public class DefaultSchedulerMetadataService implements SchedulerMetadataService
 	 * @return
 	 */
 	private String getSchedulerNodePath(Scheduler scheduler) {
-		return String.format("%s/scheduler@%s$%s", SCHEDULER_ZOOKEEPER_NODE, scheduler.getIp(), scheduler.getPid());
+		return String.format("%s/%s%s", SCHEDULER_ZOOKEEPER_NODE, scheduler.generateKey(), ZookeeperClient.SEQUENCE_SEPARATOR);
 	}
 }
