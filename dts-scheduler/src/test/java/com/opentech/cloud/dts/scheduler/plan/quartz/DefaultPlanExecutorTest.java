@@ -19,10 +19,17 @@ public class DefaultPlanExecutorTest {
 		this.dpe = new DefaultPlanExecutor(new PlanExecutor.Listener() {
 			
 			@Override
-			public void fired(TaskExecutePlan plan, Object context) {
+			public void onTriggered(TaskExecutePlan plan, Object context) {
 				System.out.println(plan);
 				System.out.println(context);
 			}
+
+			@Override
+			public void onCompleted(TaskExecutePlan plan, Object context) {
+				System.out.println(plan);
+				System.out.println(context);
+			}
+			
 		});
 		this.dpe.start();
 	}
@@ -35,8 +42,8 @@ public class DefaultPlanExecutorTest {
 	@Test
 	public void test() throws Exception {
 		
-		//this.dpe.execute(TaskExecutePlanFactory.simple(new Date(), 10, 60), "1234");
-		this.dpe.execute(TaskExecutePlanFactory.cron("*/30 * * * * ?"), "1234");
+		this.dpe.schedule(TaskExecutePlanFactory.simple(new Date(), 10, 60), "1234");
+		this.dpe.schedule(TaskExecutePlanFactory.cron("*/30 * * * * ?"), "1234");
 		Thread.sleep(360 * 1000);
 	}
 }

@@ -1,6 +1,7 @@
 package com.opentech.cloud.dts.scheduler;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,8 +77,15 @@ public class DefaultScheduler implements Scheduler {
 		this.pe = new DefaultPlanExecutor(new PlanExecutor.Listener(){
 
 			@Override
-			public void fired(TaskExecutePlan plan, Object context) {
+			public void onTriggered(TaskExecutePlan plan, Object context) {
+				plan.setLastTriggeredTime(new Date());
+				plan.incTriggeredTimes();
 				DefaultScheduler.this.rms.getTaskMetadataService().transform((Task)context, TaskStatus.READY);
+			}
+
+			@Override
+			public void onCompleted(TaskExecutePlan plan, Object context) {
+				DefaultScheduler.this.rms.getTaskMetadataService().transform((Task)context, TaskStatus.COMPELETED);
 			}
 			
 		});
@@ -94,6 +102,7 @@ public class DefaultScheduler implements Scheduler {
 		this.tryMaster();
 		
 		// 监听任务
+		this.scheduleOnGroups();
 		this.listenGroup();
 	}
 
@@ -212,9 +221,6 @@ public class DefaultScheduler implements Scheduler {
 	 * 监听任务组
 	 */
 	private void listenGroup() {
-		
-		DefaultScheduler.this.scheduleOnGroups();
-		
 		this.rms.getTaskMetadataService().subscribeGroup(new TaskMetadataService.Listener() {
 			
 			@Override
@@ -243,18 +249,57 @@ public class DefaultScheduler implements Scheduler {
 	 * @param g
 	 */
 	private void listenOneGroupTask(final String g) {
-		this.rms.getTaskMetadataService().subscribeTaskOnGroupScheduler(g, this.self, TaskStatus.WAITIN_SCHEDULE, new TaskMetadataService.Listener() {
+		this.listenOneGroupTask(g, TaskStatus.WAITIN_SCHEDULE);
+		this.listenOneGroupTask(g, TaskStatus.EXECUTED);
+	}
+	
+	/**
+	 * 
+	 * @param g
+	 * @param ts
+	 */
+	private void listenOneGroupTask(final String g, final TaskStatus ts) {
+		this.rms.getTaskMetadataService().subscribeTaskOnGroupScheduler(g, this.self, ts, new TaskMetadataService.Listener() {
 
 			@Override
 			public void fire(Event event) {
-				List<Task> tlist = DefaultScheduler.this.rms.getTaskMetadataService().getTasks(g, DefaultScheduler.this.self, TaskStatus.WAITIN_SCHEDULE);
-				for(Task t: tlist) {
-					pe.execute(t.getPlan(), t);
-					DefaultScheduler.this.rms.getTaskMetadataService().transform(t, TaskStatus.WAITIN_TRIGGERED);
+				List<Task> tlist = DefaultScheduler.this.rms.getTaskMetadataService().getTasks(g, DefaultScheduler.this.self, ts);
+				if(TaskStatus.WAITIN_SCHEDULE == ts) {
+					for(Task t: tlist) {
+						DefaultScheduler.this.schedule(t);
+						DefaultScheduler.this.rms.getTaskMetadataService().transform(t, TaskStatus.WAITIN_TRIGGERED);
+					}
+				} else if(TaskStatus.EXECUTED == ts) {
+					for(Task t: tlist) {
+						if(DefaultScheduler.this.isCompleted(t)) {
+							// 完成了
+							DefaultScheduler.this.rms.getTaskMetadataService().transform(t, TaskStatus.COMPELETED);
+						} else {
+							// 还会继续执行
+							
+						}
+					}
 				}
-				DefaultScheduler.this.listenOneGroupTask(g);
+				DefaultScheduler.this.listenOneGroupTask(g, ts);
 			}
 			
 		});
+	}
+	
+	/**
+	 * 
+	 * @param t
+	 */
+	private void schedule(Task t) {
+		this.pe.schedule(t.getPlan(), t);
+	}
+	
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 */
+	private boolean isCompleted(Task t) {
+		return this.pe.isCompeleted(t.getPlan());
 	}
 }

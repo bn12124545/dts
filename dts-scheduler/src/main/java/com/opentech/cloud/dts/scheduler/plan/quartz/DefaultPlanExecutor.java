@@ -82,11 +82,38 @@ public class DefaultPlanExecutor implements PlanExecutor {
 	}
 	
 	@Override
-	public void execute(TaskExecutePlan plan, Object context) {
-		TriggerKey triggerKey = makeQuartzTriggerKey(plan);
+	public boolean isCompeleted(TaskExecutePlan plan) {
+		return this.toQuartzTrigger(plan).mayFireAgain();
+	}
+	
+	@Override
+	public void schedule(TaskExecutePlan plan, Object context) {
 		JobKey jobKey = makeQuartzJobKey(plan);
-		Trigger trigger = null;
+		Trigger trigger = this.toQuartzTrigger(plan);
 		JobDetail qJob = JobBuilder.newJob(QuartzJob.class).withIdentity(jobKey).build();
+		// 
+		if(!trigger.mayFireAgain()) {
+			this.completed(plan, context, null);
+		}
+		
+		try {
+			qJob.getJobDataMap().put(JOB_DATA_KEY_EXECUTOR, this);
+			qJob.getJobDataMap().put(JOB_DATA_KEY_EXECUTE_PLAN, plan);
+			qJob.getJobDataMap().put(JOB_DATA_KEY_CONTEXT, context);
+			scheduler.scheduleJob(qJob, trigger);
+		} catch(SchedulerException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param plan
+	 * @return
+	 */
+	private Trigger toQuartzTrigger(TaskExecutePlan plan) {
+		Trigger trigger = null;
+		TriggerKey triggerKey = makeQuartzTriggerKey(plan);
 		if(plan instanceof SimpleTaskExecutePlan) {
 			SimpleTaskExecutePlan splan = (SimpleTaskExecutePlan)plan;
 			trigger = TriggerBuilder.newTrigger()
@@ -109,15 +136,7 @@ public class DefaultPlanExecutor implements PlanExecutor {
 		} else {
 			throw new IllegalArgumentException("Unsupported plan type: " + plan.getClass().getName());
 		}
-		
-		try {
-			qJob.getJobDataMap().put(JOB_DATA_KEY_EXECUTOR, this);
-			qJob.getJobDataMap().put(JOB_DATA_KEY_EXECUTE_PLAN, plan);
-			qJob.getJobDataMap().put(JOB_DATA_KEY_CONTEXT, context);
-			scheduler.scheduleJob(qJob, trigger);
-		} catch(SchedulerException e) {
-			throw new RuntimeException(e);
-		}
+		return trigger;
 	}
 	
 	/**
@@ -150,9 +169,37 @@ public class DefaultPlanExecutor implements PlanExecutor {
 	 * 
 	 * @param plan
 	 * @param context
+	 * @param jobKey
 	 */
-	private void fired(TaskExecutePlan plan, Object context) {
-		this.listener.fired(plan, context);
+	private void triggered(TaskExecutePlan plan, Object context, JobKey jobKey) {
+		this.deleteQuartzJob(jobKey);
+		this.listener.onTriggered(plan, context);
+	}
+	
+	/**
+	 * 
+	 * @param plan
+	 * @param context
+	 * @param jobKey
+	 */
+	private void completed(TaskExecutePlan plan, Object context, JobKey jobKey) {
+		this.deleteQuartzJob(jobKey);
+		this.listener.onCompleted(plan, context);
+	}
+	
+	/**
+	 * 
+	 * @param jobKey
+	 */
+	private void deleteQuartzJob(JobKey jobKey) {
+		if(null == jobKey) {
+			return;
+		}
+		try {
+			this.scheduler.deleteJob(jobKey);
+		} catch (SchedulerException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	/**
@@ -168,7 +215,7 @@ public class DefaultPlanExecutor implements PlanExecutor {
 			DefaultPlanExecutor dpe = (DefaultPlanExecutor)data.get(JOB_DATA_KEY_EXECUTOR);
 			TaskExecutePlan plan = (TaskExecutePlan)data.get(JOB_DATA_KEY_EXECUTE_PLAN);
 			Object c = data.get(JOB_DATA_KEY_CONTEXT);
-			dpe.fired(plan, c);
+			dpe.triggered(plan, c, context.getJobDetail().getKey());
 		}
 	}
 }

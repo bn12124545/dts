@@ -12,7 +12,7 @@ import com.opentech.cloud.dts.runtime.RuntimeMetadataService;
 
 public class DefaultTaskServiceTest {
 
-private RuntimeMetadataService rms;
+	private RuntimeMetadataService rms;
 	
 	@Before
 	public void setup() {
