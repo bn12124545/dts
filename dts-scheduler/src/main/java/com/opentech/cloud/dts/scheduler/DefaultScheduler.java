@@ -276,7 +276,7 @@ public class DefaultScheduler implements Scheduler {
 							DefaultScheduler.this.rms.getTaskMetadataService().transform(t, TaskStatus.COMPELETED);
 						} else {
 							// 还会继续执行
-							
+							DefaultScheduler.this.rms.getTaskMetadataService().transform(t, TaskStatus.WAITIN_SCHEDULE);
 						}
 					}
 				}

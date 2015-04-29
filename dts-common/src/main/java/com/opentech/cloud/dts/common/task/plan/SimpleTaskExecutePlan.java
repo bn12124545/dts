@@ -76,9 +76,26 @@ public class SimpleTaskExecutePlan extends AbstractTaskExecutePlan {
 	public Date getStartTime() {
 		return startTime;
 	}
+	
+	public Date getNextStartTime() {
+		Integer v = (Integer)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_TRIGGERED_TIMES);
+		if(null == v) {
+			return this.getStartTime();
+		} else {
+			long time = this.getStartTime().getTime();
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(time + this.getRepeatInterval() * 1000 * v);
+			return calendar.getTime();
+		}
+	}
 
 	public int getRepeatCount() {
 		return repeatCount;
+	}
+	
+	public int getRestRepeatCount() {
+		Integer v = (Integer)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_TRIGGERED_TIMES);
+		return null == v ? this.getRepeatCount() : (this.getRepeatCount() - v);
 	}
 
 	public int getRepeatInterval() {

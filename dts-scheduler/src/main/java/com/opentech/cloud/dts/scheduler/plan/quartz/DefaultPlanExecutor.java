@@ -119,10 +119,10 @@ public class DefaultPlanExecutor implements PlanExecutor {
 			trigger = TriggerBuilder.newTrigger()
 					.withIdentity(triggerKey)
 					.withPriority(plan.getPriority().value())
-					.startAt(splan.getStartTime())
+					.startAt(splan.getNextStartTime())
 					.withSchedule(SimpleScheduleBuilder.simpleSchedule()
 										.withIntervalInSeconds(splan.getRepeatInterval())
-										.withRepeatCount(splan.getRepeatCount())
+										.withRepeatCount(splan.getRestRepeatCount())
 										.withMisfireHandlingInstructionFireNow())
 					.build();
 		} else if(plan instanceof CronTaskExecutePlan) {

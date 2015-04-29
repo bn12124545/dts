@@ -82,8 +82,8 @@ public class AbstractTaskExecutePlan implements TaskExecutePlan {
 	 * 
 	 */
 	public void incTriggeredTimes() {
-		Long v = (Long)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_TRIGGERED_TIMES);
-		v = null == v ? 1L : v + 1;
+		Integer v = (Integer)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_TRIGGERED_TIMES);
+		v = null == v ? 1 : v + 1;
 		this.setRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_TRIGGERED_TIMES, v);
 	}
 	
@@ -91,8 +91,8 @@ public class AbstractTaskExecutePlan implements TaskExecutePlan {
 	 * 
 	 */
 	public void incExecutedTimes() {
-		Long v = (Long)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_EXECUTED_TIMES);
-		v = null == v ? 1L : v + 1;
+		Integer v = (Integer)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_EXECUTED_TIMES);
+		v = null == v ? 1 : v + 1;
 		this.setRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_EXECUTED_TIMES, v);
 	}
 	
@@ -100,8 +100,8 @@ public class AbstractTaskExecutePlan implements TaskExecutePlan {
 	 * 
 	 */
 	public void incSucceedExecutedTimes() {
-		Long v = (Long)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_SUCCEED_EXECUTED_TIMES);
-		v = null == v ? 1L : v + 1;
+		Integer v = (Integer)this.getRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_SUCCEED_EXECUTED_TIMES);
+		v = null == v ? 1 : v + 1;
 		this.setRuntimeItem(TASK_EXECUTE_PLAN_RUNTIME_SUCCEED_EXECUTED_TIMES, v);
 	}
 }
