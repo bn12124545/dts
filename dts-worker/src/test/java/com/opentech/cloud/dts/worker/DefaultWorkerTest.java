@@ -3,6 +3,7 @@ package com.opentech.cloud.dts.worker;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.opentech.cloud.dts.common.task.Task;
 import com.opentech.cloud.dts.runtime.DefaultRuntimeMetadataService;
 import com.opentech.cloud.dts.runtime.RuntimeMetadataService;
 
@@ -23,7 +24,7 @@ public class DefaultWorkerTest {
 	
 	@Test
 	public void test() throws Exception {
-		DefaultWorker ds = new DefaultWorker("default", this.rms);
+		DefaultWorker ds = new DefaultWorker(Task.DEFAULT_GROUP, this.rms);
 		ds.initialize();
 		ds.start();
 		

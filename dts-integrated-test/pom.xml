@@ -13,10 +13,10 @@
     </parent>
     
     <groupId>com.opentech.cloud.dts</groupId>
-    <artifactId>dts-spring</artifactId>
+    <artifactId>dts-integrated-test</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>dts-spring</name>
+    <name>dts-integrated-test</name>
     <url>http://www.openteach.com/cloud/dts</url>
     
     <dependencies>
@@ -30,11 +30,21 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>dts-api</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dts-scheduler</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>dts-worker</artifactId>
+        </dependency>
             
     </dependencies>
     
     <build>
-        <finalName>dts-spring</finalName>
+        <finalName>dts-integrated-test</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>

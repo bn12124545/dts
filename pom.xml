@@ -21,6 +21,7 @@
         <module>dts-spring</module>
         <module>dts-scheduler</module>
         <module>dts-worker</module>
+        <module>dts-integrated-test</module>
     </modules>
     
     <properties>
@@ -118,6 +119,12 @@
             <dependency>
                 <groupId>com.opentech.cloud.dts</groupId>
                 <artifactId>dts-worker</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.opentech.cloud.dts</groupId>
+                <artifactId>dts-integrated-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             

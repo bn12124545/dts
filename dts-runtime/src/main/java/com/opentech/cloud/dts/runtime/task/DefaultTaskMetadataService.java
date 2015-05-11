@@ -11,7 +11,6 @@ import com.opentech.cloud.dts.common.scheduler.Scheduler;
 import com.opentech.cloud.dts.common.task.Task;
 import com.opentech.cloud.dts.common.task.TaskStatus;
 import com.opentech.cloud.dts.runtime.scheduler.SchedulerMetadataService;
-import com.opentech.cloud.dts.runtime.task.TaskMetadataService.Listener;
 import com.opentech.cloud.dts.runtime.zookeeper.AbstractListener;
 import com.opentech.cloud.dts.runtime.zookeeper.ZookeeperClient;
 
